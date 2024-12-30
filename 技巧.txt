@@ -1,0 +1,56 @@
+让我用具体例子来解释这三种配置的使用场景：
+
+1. 最简单的全部代理
+{
+  "rewrites": [
+    { 
+      "source": "/:match/:url*", 
+      "destination": "https://:match/:url*"
+    }
+  ]
+}
+
+场景：你的网站会代理任何域名的请求
+https://abc.com/api.github.com/users/test  →  https://api.github.com/users/test
+https://abc.com/api.twitter.com/v1/tweets  →  https://api.twitter.com/v1/tweets
+https://abc.com/any.domain.com/anything    →  https://any.domain.com/anything
+
+⚠️ 风险：这太开放了，你的网站变成了一个公共代理，任何人都可以通过你的域名访问任何网站
+
+2. 单一域名代理
+{
+  "rewrites": [
+    { 
+      "source": "/api.github.com/:url*", 
+      "destination": "https://api.github.com/:url*"
+    }
+  ]
+}
+
+场景：你的网站只需要代理 GitHub API
+https://abc.com/api.github.com/users/test  →  https://api.github.com/users/test
+https://abc.com/api.twitter.com/v1/tweets  →  ❌ 不会代理
+
+✅ 推荐：安全且明确，只代理你需要的 API
+
+3. 多个指定域名代理
+{
+  "rewrites": [
+    { 
+      "source": "/:match(api\\.github\\.com|api\\.twitter\\.com)/:url*", 
+      "destination": "https://:match/:url*"
+    }
+  ]
+}
+
+场景：你的网站需要代理多个特定的 API
+https://abc.com/api.github.com/users/test   →  https://api.github.com/users/test
+https://abc.com/api.twitter.com/v1/tweets   →  https://api.twitter.com/v1/tweets
+https://abc.com/other.domain.com/anything   →  ❌ 不会代理
+
+✅ 推荐：当你需要代理多个特定 API 时使用，既灵活又安全
+
+总结建议：
+- 如果只用到一个 API，用第 2 种
+- 如果用到多个特定 API，用第 3 种
+- 避免使用第 1 种，除非你真的需要代理任何域名 ❮c❯
